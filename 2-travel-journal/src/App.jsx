@@ -13,7 +13,7 @@ function App() {
         // googleMapsLink={entry.googleMapsLink}
         // dates={entry.dates}
         // text={entry.text}
-        entry={entry}
+        {...entry}
       />
     );
   });
