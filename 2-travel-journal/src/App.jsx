@@ -6,12 +6,14 @@ function App() {
   const entries = data.map((entry) => {
     return (
       <Entry
-        img={entry.img}
-        title={entry.country}
-        country={entry.title}
-        googleMapsLink={entry.googleMapsLink}
-        dates={entry.dates}
-        text={entry.text}
+        key={entry.id}
+        // img={entry.img}
+        // title={entry.country}
+        // country={entry.title}
+        // googleMapsLink={entry.googleMapsLink}
+        // dates={entry.dates}
+        // text={entry.text}
+        entry={entry}
       />
     );
   });
