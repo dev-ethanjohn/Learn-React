@@ -51,3 +51,21 @@ export default App;
 // 1. Makes apps more predictable and easier to understand
 // 2. Make apps easier to debug, as we have more control over the data
 // 3. more performant
+
+//* IMPORTANT 45: JSX Rules
+// NOTE: General JSX rules
+// 1. JSX like HTML, we can enter "JS mode" by using {} for text or attributes
+// 2. We can place JS expressions inside {}. Ex. reference variables, create arrays or obj, [].map(), ternary
+// 3. Statements are not allowed (if/else, for, switch)
+// 4. JSX produces a JS expression. We can place other pieces of JSX inside {}. We can  write JSX anywhere inside a component (in if/else, assign to variables, pass into functions)
+// 5. A piece of JSX can only have 1 root element. If you need more use <React.Fragment> </React.Fragment> or <></>
+
+// NOTE: Differences of JSX and HTML
+// 1. className > class
+// 2. htmlFor > for
+// 3. Every tag needs to be closed. ex: <img/> or <br/>
+// 4. All event handlers and other properties need to be camelCased. ex: onClick or onMouseOver
+// 5. Exceptions: aria-* and data-* are written w/ dashes like in HTML
+// 6. CSS inline styles are written like {{<style></style>}} to reference a variable , and then an object
+// 7. CSS property names are also camelCased
+// 8. Comments need to be {} because they are JS
