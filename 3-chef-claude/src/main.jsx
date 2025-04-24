@@ -1,33 +1,30 @@
 import { useState } from "react";
 
 export default function Main() {
-  /**
-   * Challenge: Update our app so that when the user enters a
-   * new ingredient and submits the form, it adds that new
-   * ingredient to our list!
-   */
-
-  const [ingredients, setIngredients] = useState([
-    "Chicken",
-    "Oregano",
-    "Tomatoes",
-  ]);
+  const [ingredients, setIngredients] = useState([]);
 
   const ingredientsListItems = ingredients.map((ingredient) => (
     <li key={ingredient}>{ingredient}</li>
   ));
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+  function addIngredient(formData) {
+    // event.preventDefault();
+    // const formData = new FormData(event.currentTarget);
+    // const newIngredient = formData.get("ingredient");
+
     const newIngredient = formData.get("ingredient");
+    console.log(newIngredient);
 
     setIngredients((prevIngredients) => [...prevIngredients, newIngredient]);
   }
 
   return (
     <main>
-      <form onSubmit={handleSubmit} className="add-ingredient-form">
+      <form
+        // onSubmit={handleSubmit}
+        className="add-ingredient-form"
+        action={addIngredient}
+      >
         <input
           type="text"
           placeholder="e.g. oregano"
