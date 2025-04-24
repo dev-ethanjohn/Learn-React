@@ -12,7 +12,7 @@ function Menu() {
       <main className="menu">
         <h2>Our menu</h2>
         {numPizzas > 0 ? (
-          <ul>
+          <ul className="pizzas">
             {pizzas.map((pizza) => (
               <Pizza key={pizza.name} pizzaObj={pizza} />
             ))}
