@@ -1,0 +1,8 @@
+// jsconfig.json
+{
+  "compilerOptions": {
+    "target": "es6",
+    "jsx": "react"
+  },
+  "exclude": ["node_modules"]
+}
