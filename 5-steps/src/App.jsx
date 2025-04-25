@@ -13,54 +13,64 @@ function Step({ number, isActive }) {
 function App() {
   const [step, setStep] = useState(1);
   const maxStep = messages.length;
+  const [isOpen, setIsOpen] = useState(true);
 
   //NOTE: TESTING
-  const [test, setTest] = useState({ name: "Ethan" });
+  // const [test, setTest] = useState({ name: "Ethan" });
 
   const handlePrevious = () => {
-    if (step > 1) setStep((prev) => prev - 1);
+    // if (step > 1) setStep(step - 1) //!updating state based on current state
+    if (step > 1) setStep((prevStep) => prevStep - 1); //* updating state based on previous/recent value
   };
 
   const handleNext = () => {
-    if (step < maxStep) setStep((prev) => prev + 1);
+    if (step < maxStep) setStep((prevStep) => prevStep + 1);
 
-    //! BAD
-    // test.name = "John";
-    setTest((prev) => ({ ...prev, name: "John" })); //*spreads the previous object and overwrites the name property
+    // test.name = "John"; //! BAD
+    // setTest((prev) => ({ ...prev, name: "John" })); //*spreads the previous object and overwrites the name property
+  };
+
+  const handleOpen = () => {
+    setIsOpen((prevIsOpen) => !prevIsOpen);
   };
 
   return (
     <>
-      <div className="steps">
-        <div className="numbers">
-          {/* <div className={`${step >= 1 ? "active" : ""}`}>1</div>
+      <button onClick={handleOpen} className="close">
+        &times;
+      </button>
+      {isOpen && (
+        <div className="steps">
+          <div className="numbers">
+            {/* <div className={`${step >= 1 ? "active" : ""}`}>1</div>
           <div className={`${step >= 2 ? "active" : ""}`}>2</div>
           <div className={`${step >= 3 ? "active" : ""}`}>3</div> */}
-          {Array.from({ length: maxStep }, (_, i) => (
-            <Step key={i} number={i + 1} isActive={step >= i + 1} />
-          ))}
-        </div>
+            {Array.from({ length: maxStep }, (_, i) => (
+              <Step key={i} number={i + 1} isActive={step >= i + 1} />
+            ))}
+          </div>
 
-        <p className="message">
-          Step {step}: {messages[step - 1]}
-          {test.name}
-        </p>
+          <p className="message">
+            Step {step}: {messages[step - 1]}
+            {/* {test.name} */}
+          </p>
 
-        <div className="buttons">
-          <button
-            onClick={handlePrevious}
-            style={{ backgroundColor: "#7950f2", color: "#fff" }}
-          >
-            Previous
-          </button>
-          <button
-            onClick={handleNext}
-            style={{ backgroundColor: "#7950f2", color: "#fff" }}
-          >
-            Next
-          </button>
+          <div className="buttons">
+            <button
+              onClick={handlePrevious}
+              style={{ backgroundColor: "#7950f2", color: "#fff" }}
+            >
+              Previous
+            </button>
+            <button
+              onClick={handleNext}
+              style={{ backgroundColor: "#7950f2", color: "#fff" }}
+            >
+              Next
+            </button>
+          </div>
         </div>
-      </div>
+      )}{" "}
     </>
   );
 }
@@ -75,3 +85,19 @@ export default App;
 
 // State allows dev to UPDATE THE COMPONENT'S VIEW (RERENDER)
 // State allows dev to PERSIST LOCAL VARIABLES BETWEEN RENDERS
+
+//* IMPORTANT: 62 The mechanic of state
+// 1. No DOM manipulation (declarative)
+// 2. A view is updated by re-rendering the component
+// 3. A component is rerendered when its state is updated
+// NOTE: SO, TO UPDATE A VIEW, WE UPDATE STATE
+// NOTE: REACT, REACTS TO STATE CHANGES BY RE-RENDERING THE UI
+
+//* IMPORTANT: 66 State guidelines
+//NOTE: Each compoennt has and manages its own state, no matter how many times we render the same component
+
+// 1. Use a state variable for any data that teh component should keep track of ("remember") over time. This is data that will change at some point. IN JS, let, [] or {}
+// 2. Whenever you want something in the component to be dynamic, create a piece of state related to that "thing" should change. Ex: A modal window can be open or closed. So we create a state variable `isOpen` that tracks whether the modal is open or not. On `isOpen` = `true` we display the window, on `isOpen = `false` we hide it.
+// 3. If you want to change the way a component looks, or the data it displays, update its state. This is usually happens in an event handler function.
+// 4. When building a component, imagine its view as a reflection of state changing over time.
+// 5. For data hat should not trigger component re-renders, dont use state. Use a regular variable.
