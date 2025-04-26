@@ -1,4 +1,8 @@
 import { useState } from "react";
+import Form from "./Form";
+import Logo from "./Logo";
+import PackingList from "./PackingList";
+import Stats from "./Stats";
 
 // const initialItems = [
 //   { id: 1, description: "Passports", quantity: 2, packed: false },
@@ -10,11 +14,11 @@ function App() {
   const [items, setItems] = useState([]); //* LIFT UP THE STATE To common parent component
 
   const handleAddItems = (item) => {
-    setItems((prev) => [...prev, item]);
+    setItems((currentItems) => [...currentItems, item]);
   };
 
   const handleDeleteItem = (id) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+    setItems((currentItems) => currentItems.filter((item) => item.id !== id));
   };
 
   const handleToggleItem = (id) => {
@@ -23,6 +27,10 @@ function App() {
         item.id === id ? { ...item, packed: !item.packed } : item
       )
     );
+  };
+
+  const handleClearList = () => {
+    setItems([]);
   };
 
   return (
@@ -34,6 +42,7 @@ function App() {
           items={items}
           onDeleteItem={handleDeleteItem}
           onToggleItem={handleToggleItem}
+          onClearList={handleClearList}
         />
         <Stats items={items} />
       </div>
@@ -41,165 +50,9 @@ function App() {
   );
 }
 
-function Logo() {
-  return (
-    <>
-      <h1>✈️ Far Away</h1>
-    </>
-  );
-}
-
-function Form({ onAddItems }) {
-  // const [description, setDescription] = useState("Test");
-  // const [quantity, setQuantity] = useState(1);
-  const [formData, setFormData] = useState({ description: "", quantity: 1 });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    const newValue = name === "quantity" ? parseInt(value) : value;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.description) return;
-
-    const newItem = {
-      description: formData.description,
-      quantity: formData.quantity,
-      packed: false,
-      id: Date.now(),
-    };
-
-    console.log(newItem);
-
-    onAddItems(newItem); //* Communicate with the parent (SEND data back to App parent)
-
-    // NOTE: RESET to default after form submits
-    setFormData({ description: "", quantity: 1 });
-  };
-
-  //* IMPORTANT: ALTERNATIVE: Extract form data using FormData API
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-
-  //   // Create a FormData object from the form
-  //   const formData = new FormData(e.target);
-
-  //   // Extract values from the FormData object
-  //   const description = formData.get("description");
-  //   const quantity = parseInt(formData.get("quantity"), 10);
-
-  //   // Validate the description field
-  //   if (!description) return;
-
-  //   // Create a new item object
-  //   const newItem = {
-  //     description,
-  //     quantity,
-  //     packed: false,
-  //     id: Date.now(),
-  //   };
-
-  //   console.log(newItem); // Log the new item for debugging
-
-  //   // Reset the form fields to their default values
-  //   e.target.reset();
-  // };
-
-  return (
-    <form onSubmit={handleSubmit} className="add-form">
-      <h3>What do you need for you 😍 trip?</h3>
-      <select value={formData.quantity} onChange={handleChange} name="quantity">
-        {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
-          <option value={num} key={num}>
-            {num}
-          </option>
-        ))}{" "}
-      </select>
-      <input
-        type="text"
-        placeholder="Item..."
-        value={formData.description}
-        onChange={handleChange}
-        name="description"
-      />
-      <button>Add</button>
-    </form>
-  );
-}
-
-function PackingList({ items, onDeleteItem, onToggleItem }) {
-  return (
-    <div className="list">
-      <ul>
-        {items.map((item) => {
-          return (
-            <Item
-              key={item.id}
-              item={item}
-              onDeleteItem={onDeleteItem}
-              onToggleItem={onToggleItem}
-            />
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
-function Item({ item, onDeleteItem, onToggleItem }) {
-  return (
-    <li>
-      <input
-        type="checkbox"
-        value={item.packed}
-        onChange={() => onToggleItem(item.id)}
-      />
-      <span style={item.packed ? { textDecoration: "line-through" } : {}}>
-        {item.quantity} {item.description}
-      </span>
-      <button onClick={() => onDeleteItem(item.id)}>❌</button>
-    </li>
-  );
-}
-
-function Stats({ items }) {
-  // NOTE: EARLY EXIT
-  if (!items.length)
-    return (
-      <p className="stats">
-        <em>Start adding items to your packing list 🚀</em>
-      </p>
-    );
-
-  //NOTE: DERIVED STATES
-  const numItems = items.length;
-  const numPacked = items.filter((item) => item.packed).length;
-
-  const percentage =
-    numItems === 0 ? 0 : Math.round((numPacked / numItems) * 100);
-
-  return (
-    <footer className="stats">
-      <em>
-        {percentage === 100
-          ? "You got everything! Ready to go!"
-          : `You have ${numItems} items on your list, and you already packed
-        ${numPacked} (${percentage}%)`}
-      </em>
-    </footer>
-  );
-}
-
 export default App;
 
-// IMPORTANT: 74: STATE VS PROPS
+//* IMPORTANT: 74: STATE VS PROPS
 // NOTE: STATE
 // 1. Internal data, owned by component
 // 2. Component "memory"
@@ -226,7 +79,7 @@ export default App;
 // - child-to-parent communication
 // - accessing global state
 
-// IMPORTANT 79: STATE MANAGEMENT
+//* IMPORTANT 79: STATE MANAGEMENT
 // A. TYPE OF STATE: LOCAL VS GLOBAL
 // NOTE: LOCAL STATE
 // - State needed only by 1 or few components
@@ -236,5 +89,5 @@ export default App;
 //  - state that many components might need
 // - shared state that is accessible to every component in the app (CONTEXT API / REDUX)
 
-// IMPORTANT 84: Derived state
+//* IMPORTANT 84: Derived state
 // State that is computed from existing piece of state or from props
