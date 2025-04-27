@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useState } from "react";
 // NOTE: if too many props, PROVIDE GOOD DEFAULT VALUES
 
@@ -56,6 +57,16 @@ export default function StarRating({
     </>
   );
 }
+
+StarRating.propTypes = {
+  maxRating: PropTypes.number,
+  defaultRating: PropTypes.number,
+  color: PropTypes.string,
+  size: PropTypes.number,
+  messages: PropTypes.array,
+  className: PropTypes.string,
+  onSetRating: PropTypes.func,
+};
 
 function Star({ onRate, index, full, setTempRating, color, size }) {
   const starStyle = {
