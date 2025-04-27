@@ -1,14 +1,13 @@
 import { useState } from "react";
+import Button from "./Button";
+import Step from "./Step";
+import getButtons from "./buttonConfig";
 
 const messages = [
   "Learn React ⚛️",
   "Apply for jobs 💼",
   "Invest your new income 🤑",
 ];
-
-function Step({ number, isActive }) {
-  return <div className={isActive ? "active" : ""}>{number}</div>;
-}
 
 function App() {
   const [step, setStep] = useState(1);
@@ -50,28 +49,44 @@ function App() {
             ))}
           </div>
 
+          {/* 
           <p className="message">
             Step {step}: {messages[step - 1]}
-            {/* {test.name} */}
-          </p>
+          </p> */}
+          <StepMessage step={step}>
+            {messages[step - 1]}
+            <div className="buttons">
+              <Button
+                onClick={() => alert(`Learn how to ${messages[step - 1]}`)}
+                bgColor="#333"
+                textColor="#fff"
+              >
+                <span>🔥</span> Start Now
+              </Button>
+            </div>
+          </StepMessage>
 
           <div className="buttons">
-            <button
-              onClick={handlePrevious}
-              style={{ backgroundColor: "#7950f2", color: "#fff" }}
-            >
-              Previous
-            </button>
-            <button
-              onClick={handleNext}
-              style={{ backgroundColor: "#7950f2", color: "#fff" }}
-            >
-              Next
-            </button>
+            {getButtons(handlePrevious, handleNext).map((btn, index) => (
+              <Button key={index} {...btn}>
+                {btn.text === "Previous" && <span>⏮️ </span>}
+                {btn.text}
+                {btn.text === "Next" && <span> ⏭️</span>}
+              </Button>
+            ))}
           </div>
         </div>
       )}{" "}
     </>
+  );
+}
+
+function StepMessage({ step, children }) {
+  return (
+    <div className="message">
+      <h3 className="step">Step {step}</h3>
+      {children}
+    </div>
   );
 }
 
@@ -101,3 +116,9 @@ export default App;
 // 3. If you want to change the way a component looks, or the data it displays, update its state. This is usually happens in an event handler function.
 // 4. When building a component, imagine its view as a reflection of state changing over time.
 // 5. For data hat should not trigger component re-renders, dont use state. Use a regular variable.
+
+//* IMPORTANT 90: children Props
+//1. Allows us to pass JSX into components (besides reg props)
+// 2.Make components reusable (component contents)
+// 3.USeful for generic componenst that don't know their content before being used (modal)
+// NOTE: "children = whatever I write between <Component>...</Component>, which gets inserted into {children}.";
