@@ -75,8 +75,24 @@ function TabContent({ item }) {
   const [showDetails, setShowDetails] = useState(true);
   const [likes, setLikes] = useState(0);
 
+  console.log("RENDER");
+
   function handleInc() {
-    setLikes(likes + 1);
+    setLikes((currentLikes) => currentLikes + 1);
+  }
+
+  function handleTripleInc() {
+    setLikes((currentLikes) => currentLikes + 3);
+  }
+
+  function handleUndoLater() {
+    setTimeout(handleUndo, 2000);
+  }
+
+  function handleUndo() {
+    setShowDetails(true);
+    setLikes(0);
+    console.log(likes);
   }
 
   return (
@@ -92,13 +108,13 @@ function TabContent({ item }) {
         <div className="hearts-counter">
           <span>{likes} ❤️</span>
           <button onClick={handleInc}>+</button>
-          <button>+++</button>
+          <button onClick={handleTripleInc}>+++</button>
         </div>
       </div>
 
       <div className="tab-undo">
-        <button>Undo</button>
-        <button>Undo in 2s</button>
+        <button onClick={handleUndo}>Undo</button>
+        <button onClick={handleUndoLater}>Undo in 2s</button>
       </div>
     </div>
   );
@@ -112,8 +128,8 @@ function DifferentContent() {
   );
 }
 
-console.log(<DifferentContent test={23} />);
-console.log(DifferentContent());
+// console.log(<DifferentContent test={23} />);
+// console.log(DifferentContent());
 
 //* IMPORTANT:124 coMPONENTS, instances and elements
 // NOTE: Component -> Component Instance -> (*returns) React Elements ->(*converted and inserted) DOM elements (HTML)
@@ -204,3 +220,34 @@ console.log(DifferentContent());
 // we need a key to reset this state
 
 // IMPORTANT: "If you want to preserve state, keep the same type and same key. If you want to reset state, change the key."
+
+//* IMPORTANT 134: Rules for Render Logic: PURE COMPONENTS
+// 2 TYPES OF LOGIC in REACT COMPONENTS
+// 1. RENDER LOGIC
+// - Code that lives at the top level of the component function
+// - participates in describing how the component view looks like
+// - exeuted everytime the component renders
+// 2. EVENT HANDLER FUNCTION
+// - executed as a consequence of the event that the handler is listening for
+// - code that actually does things: update state, perform an HTTP request, read an input field, navigate to another page, etc.
+
+// FUNCTIONAL PROGRAMMING PRINCIPLES
+// 1. Side effect: dependency on or modification of any data outside the function sopce. "Interaction with the outside world": examples: mutating external variables, HTTP requests, writing to DOM, setting timers, etc. (OUTSIDE VARIABLE MUTATION). Side effects are not bad! A program can onl be useful if it has some interaction with teh outside world.
+// 2. Pure function: A function that has no side effects. Does not change any avriables outside its scope. Given teh same input, it always returns the same output.
+
+// RULES FOR RENDER LOGIG
+// 1. Components must be pure: given the same props (input), a component instance should always return teh same JSX output
+// 2. Render logic must produce no side effecs: no interaction with the "outside world" is allowed. So render logic:
+// - DO NOT PERFORM NETWORK REQUESTS (API CALLS)
+// - DO NOT START TIMERS
+// - DO NOT DIRECTLY USE THE DOM API
+// - DO NOT MUTATE OBJECTS OR VARIABLES OUTSIDE THE FUNCTION SCOPE (CANT MUTATE PROPS)
+// - DO NOT UPDATE STATE (OF REFS).
+
+// NOTE: Side effects are allowed (and encouraged) in event handler functions! Thre is also a special hook to register side effects (useEffect)
+
+//* IMPORTANT 135: State update batching
+// Multiple setState calls inside the same handler won't cause multiple re-renders — just one render and commit. All states are batched in the event handler.
+// Updating state in React is asynchronous -> updated state variables are not immediately avaiable after setState call, but only after the re-render. This also applies when only 1 state variable is updated. If we need to udpate state based on previous update, we use setState with callback
+
+// NOTE:Starting in React 18, automatic batching is supported everywhere — including inside timeouts, promises, native event listeners, and asynchronous code — improving performance by reducing unnecessary renders
