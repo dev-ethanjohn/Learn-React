@@ -251,3 +251,114 @@ function DifferentContent() {
 // Updating state in React is asynchronous -> updated state variables are not immediately avaiable after setState call, but only after the re-render. This also applies when only 1 state variable is updated. If we need to udpate state based on previous update, we use setState with callback
 
 // NOTE:Starting in React 18, automatic batching is supported everywhere — including inside timeouts, promises, native event listeners, and asynchronous code — improving performance by reducing unnecessary renders
+
+//* IMPORTANT 137: How events work in React
+//NOTE: Event propagation and delegation
+// -> It event starts from the root down to the target element (capturing phase) and then goes back (bubbling phase)
+// By default, event handlers listen to events on the target and during the bubbling phase
+// We can prevent bubbling with e.stopPropagation()
+
+//NOTE: Event delegation
+// Handing event for multiplpe elements centrally in one single parent element
+
+//NOTE: How React handles events
+// React registers all event handlers on the root DOM container. This is where all events are handled.
+//* Behind the scenes. React performs event delegation for all events in our application
+
+// Synethtic Events
+// -Wrapper around the DOM'S native event object
+// - Has some interface as native event objects, like stopPropagation() and preventDEfault()
+// - Fixes browser nconsistencies so that events work in teh same way in all browsers.
+// - most synthetic events bubble (including focus, blur, and change), except for scroll
+
+// Event handlers in React vs JS
+// - Attributes for event handlers are named using camelCase (onClick instead of onclick or click)
+// - Default behavior can not be prevented by returning false (onl by using preventDefault())
+// - Attach "Capture" if you need to handle during capture phase (onClickCapture)
+
+//* IMPORTANT 138: Libraries vs frameworks: REACT
+
+//NOTE: FRAMEWORKS: VUE, SVELTE, ANGULAR
+// - Framworks include everything including HTTP requests, Styling, Routing, Form management, etc.
+
+//NOTE: LIBRARY: React (JS based view library)
+// -> Libraries need other external libraries for HTTP requests, styling, routing, form management, etc.
+
+//NOTE: React 3rd party library ecosystem
+// Routing -> REACT ROUTER / React location
+// http requests -> JS fetch/ Axios
+// Remote state management -> React query, SWR, APOLLO
+// Global state management -> Context API, Redux, Zustand
+// Styling -> CSS MOdules, styled coomponents, tailwindCSS, Sass/SCSS
+// Form management -> React Hook form, formik
+// animatioons/transitions -> framer motion, react spring
+// UI Components -> MUI, chakra, Mantine
+
+//NOTE: Frameworks built on top of React
+// React frameworks offer many other features: server-side rendering (SSR), static site generation (SSG), better dev expereince (DX), etc. (full stack frameworks)
+// -> Next.JS
+// -> Remix
+// -> Gatsby
+
+//* IMPORTANT 139: Pratical Takeaways
+// 1. A component is like a blueprint for a piece of UI that will eventually exist on the screen. When we "use" a component, React creates a component instance, which is like an actual physical manifestation of a component, containing props, state and more. a component intsace, when rendered, will return a React element.
+// 2. "Rendering" only means calling component functions and calculating what DOM elements need to be inserted, deleted, or updated. it has nothing to do with wrting to the DOM, therefore each time a component instance is rendered and re-rendered, the func is called again.
+// 3. Only the inital app render and state updates can cause a render, which happens for the entire application, not just one single component
+// 4. When a component instance gets re-rendered, all its children will get re-rendered too! This doesn't mean that all children will get updated in the DOM, thanks to reconciliation, which checks whcih elements have actually chaned between 2 renders. But all this re-rendering can still have an impact on performance.
+// 5. Diffing is how React decides which DOM elements need to be added or modified. IF, ebtween renders, a certain React element [stays at the same position in the element tree], the corresponding DOM element and component state will stay the same. If the [element changed to a different positon], or if it's a [differnt element type], the DOM element and state will be destroyed.
+// 6. Giving elements a key prop allows React to distinguish between multiple component instances. [When a key stays the same across renders], the element is kep in the DOM. This is why we need to use keys in lists. [When we change the key between renders,] the DOM element will be destroyed and rebuilt. We use thsi as a [trick to reset state].
+// 7. [Never declare a new component inside another component!] Doing so will re-create the nested component every time tha parent component re-renders. React will always see the nested component as [NEW], and therefore [RESET its STATE] each time the parent state is updated.
+
+// *8. The logic that produces JSX output for a compoentn instance ("render logic") is [not allowed to produce any side effect:] no API calls, no timers, no object or variable mutations, no state updates. [side effects are allowed in event handlers and useEffect hooks]
+/*
+function MyComponent() {
+  const [count, setCount] = useState(0);
+
+  NOTE: 🚨 Side effect inside render - BAD! 
+  if (count === 0) {
+    setCount(5); // ❌ Updating state during render is illegal
+  }
+
+  return <h1>Count is {count}</h1>;
+}
+*/
+
+/*
+function MyComponent() {
+  const [count, setCount] = useState(0);
+
+  NOTE: 👍  Side effect inside useEffect (ALLOWED)
+  useEffect(() => {
+    if (count === 0) {
+      setCount(5); // ✅ Safe here — only happens after first render
+    }
+  }, [count]);
+
+  return <h1>Count is {count}</h1>;
+} */
+
+/*
+function MyComponent() {
+  const [count, setCount] = useState(0);
+
+  NOTE: 👍  Side effect inside an event handler (ALLOWED)
+  function handleClick() {
+    setCount(count + 1); // ✅ Updating state inside an event handler is safe
+  }
+
+  return (
+    <div>
+      <h1>Count is {count}</h1>
+      <button onClick={handleClick}>Increment</button>
+    </div>
+  );
+}
+*/
+
+//* 9. The DOM is updated in teh commit phase, but not by React, but by a "renderer" called ReactDOM. That's why we always use to include both libraries in a React web app project. WE can use other rendered to use React on differnt platforms, for example to build mobile or native apps.
+
+//* 10. multiple state updates inside an event handler func are [batched], so they happen all at once, causing only one re-render. This means we [cannot access a state variable immediately after updating it]: state updates are [ASYNCHRONOUS]. Since React 18, batching also happens in timeouts, promises, and native event handlers.
+
+//* 11. When using events in event handlers, we get access to a [synthetic event object], not the browser's native object, so that [events work the same wat across all browsers]. the diff is that [most synthetic event bubble], including focus, blur, and change, which do not bubble as native browser events. Only scroll event does not bubble.
+
+//* 12. [REACT IS A LIBRARY, NOT A FRAMEWORK]. This means that you can assemble your app using your fav 3rd partly libs. The downside is that you need to fnd and learn all these additional lib.

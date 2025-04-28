@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const tempMovieData = [
   {
@@ -244,9 +244,56 @@ function WatchedMovie({ movie }) {
   );
 }
 
+const KEY = "6faae9f8";
+
 function App() {
-  const [movies] = useState(tempMovieData);
+  const [movies, setMovies] = useState(tempWatchedData);
   const [watched] = useState(tempWatchedData);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const query = "interstellar";
+
+  //! Fetching data  in the render logic is a side effect (because it affects things outside the component, e.g., making a network request). React render phase must be pure: no fetch, no timers, no DOM mutations, no direct state changes!
+  //? Only event handlers and useEffect (or other effect hooks) are allowed to cause side effects!
+  //? "Rendering should just compute JSX based on the current state/props. Effects happen after the render.";
+  useEffect(() => {
+    // fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=interstellar`)
+    //   .then((res) => res.json())
+    //   .then((data) => {
+    //     console.log(data.Search);
+    //     setMovies(data.Search);
+    //   });
+    const fetchMovies = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const res = await fetch(
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+        );
+        if (!res.ok) throw new Error("Something went wrong...");
+        const data = await res.json();
+        console.log(data);
+        if (data.Response === "False") throw new Error("Movie not found");
+        setMovies(data.Search);
+      } catch (error) {
+        console.error(error);
+        // custom message
+        if (error.message === "Failed to fetch") {
+          setError(
+            "Network error: Could not connect to the server. Please check your connection."
+          );
+        } else {
+          setError(error.message);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMovies();
+  }, []); //* ✅ Empty dependency array = run once on mount
+
   return (
     <>
       <NavBar>
@@ -264,16 +311,28 @@ function App() {
             </>
           }
         /> */}
-        <Box>
-          <MovieList movies={movies} />
-        </Box>
-        <Box>
-          <WatchedSummary watched={watched} />
-          <WatchedMoviesList watched={watched} />
-        </Box>
+        {/* {isLoading && <p className="loader">Loading...</p>}
+        {error && <p className="error">{error}</p>} */}
+
+        <>
+          <Box>
+            {isLoading && <Loader />}
+            {error && <p className="error">{error}</p>}
+
+            {!isLoading && !error && <MovieList movies={movies} />}
+          </Box>
+          <Box>
+            <WatchedSummary watched={watched} />
+            <WatchedMoviesList watched={watched} />
+          </Box>
+        </>
       </Main>
     </>
   );
+}
+
+function Loader() {
+  return <p className="loader">Loading....</p>;
 }
 
 export default App;
@@ -300,7 +359,32 @@ export default App;
 // - result of composition
 // - can be huge and nonreusable (but don't have to)
 
-// IMPORTANT:111 Component composition
+//* IMPORTANT:111 Component composition
 // Combining diff components using `children prop` (or explicitly defined props)
 // 1. Create highl reusable and flexible components
 // 2. Fix prop drilling (great for layouts)
+
+//* IMPORTANT:111 Component lifecycle
+// 1. Mounted (Born) / initial render -> component instance is rendered for the first time. Fresh state and props are created. The component is born.
+// 2. Re-render (optional only) -> Happens when [state changes], [props changed], [parent re-renders] [context changes]
+// 3. Unmounted (Dies) -> component instance is destroyed and removed. state and props are destroyed.
+
+// NOTE: We an define code to run at these specific points in time
+
+//* IMPORTANT:114 A first look at Effects
+// A SIDE EFFECT -> any interation between a react component and the world outside the component. We can also think fo a side as "code that actually does something." Examples, data fetching, setting up subscriptions, setting up timers, manually accessing the DOM, etc.
+
+//  2 WAYS SIDE EFFECTS CAN BE MADE
+// 1. EVENT HANDLERS -> triggered by Events
+// 2. EFFECTS (useEFFECT) -> Triggered by rendering
+
+// NOTE: EFFECTS allow us to write code that will run at different moment: mount, re-render, or unmount.
+
+//NOTE: EVENT HANDLERS
+// -> Executed when the corresponing event happends
+// -> Used to react to an event
+//IMPORTANT PREFERRED WAY of CREATING SIDE EFFECTS
+
+//NOTE: EFFECTS (useEFFECT)
+//  -> Executed after the compount mounts (initial render), and after subsequent re-renders (according to dependency array)
+// -> Used to keep a component synchronized with some external system.
