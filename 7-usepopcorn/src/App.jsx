@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Box from "./Box";
 import ErrorMessage from "./Components/ErrorMessage";
 import Loader from "./Components/Loader";
@@ -22,6 +22,8 @@ function MovieDetail({ selectedId, onCloseMovie, onAddWatched, watched }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [userRating, setUserRating] = useState("");
+
+  const countRef = useRef(0);
 
   // check if you already rated this movie (added already to the watched list)
   const watchedIds = new Set(watched.map((movie) => movie.imdbID));
@@ -74,6 +76,7 @@ function MovieDetail({ selectedId, onCloseMovie, onAddWatched, watched }) {
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
       userRating: Number(userRating),
+      countRatingDecisions: countRef.current,
     };
 
     onAddWatched(newWatchedMovie);
@@ -82,6 +85,12 @@ function MovieDetail({ selectedId, onCloseMovie, onAddWatched, watched }) {
     // setAvgRating(Number(imdbRating)); //?
     // setAvgRating((aveRating) => (aveRating + userRating) / 2); //?
   }
+
+  useEffect(() => {
+    if (userRating) {
+      countRef.current = countRef.current + 1;
+    }
+  }, [userRating]);
 
   useEffect(() => {
     const getMovieDetails = async () => {
@@ -142,6 +151,9 @@ function MovieDetail({ selectedId, onCloseMovie, onAddWatched, watched }) {
         onCloseMovie();
       }
     }
+
+    //* NO NEED OF useRef
+    // handling a global side effect (keyboard event), so there's no DOM node you need to reference.
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
@@ -520,3 +532,77 @@ export default App;
 // - Can call hooks inside a [function component] or a [custom hook]
 
 // NOTE: Hooks rely on [CALL ORDER]. Can easily identify the state of each hook. Hooks need to call in teh same order on every render. A->B->C => NEXT render A-> B -> C
+
+//* IMPORTANT:164 useState Summary
+//NOTE: 1. CREATING STATE
+// A. Simple
+/*
+const [count, setCount] = useState(0);
+*/
+
+// B. Based on function (lazy evaluation)
+/*
+const [count, setCount] = useState(() => {
+  const stored = localStorage.getItem("count");
+  return stored ? JSON.parse(stored) : 0;
+});
+*/
+
+// NOTE: 2. UPDATING STATE (do not mutate objects/arrays -> replace them instead)
+// A. Simple
+/*
+setCount(1000);
+*/
+
+// B. Functional update (recommended when the new state depends on the previous one)
+/*
+setCount((prevCount) => prevCount + 1)
+*/
+
+// ✅ For objects:
+/*
+setUser((prevUser) => ({
+  ...prevUser,
+  name: "Updated Name",
+}));
+*/
+
+// ✅ For arrays (e.g., adding an item):
+/*
+setItems((prevItems) => [...prevItems, newItem]);
+*/
+
+// ✅ For arrays (e.g., removing an item by id):
+/*
+setItems((prevItems) => prevItems.filter(item => item.id !== idToRemove));
+*/
+
+// * IMPORTANT: useRef Introduction (React Hook #164)
+
+// useRef creates a "box" (object) with a `.current` property.
+// - This property is mutable (can be changed without re-rendering).
+// - It is persisted across renders (unlike normal variables which reset).
+
+// 🔑 2 Common Use Cases:
+
+// 1. Storing values across renders without triggering re-renders
+//    Examples: previous state, timers (setTimeout ID), counters, etc.
+
+// 2. Referencing and manipulating DOM elements
+//    Example: inputRef.current.focus(), measuring dimensions, etc.
+
+// 💡 Ref is for "data that is NOT rendered":
+// - You can safely read or write `.current` inside effects, handlers, or event callbacks.
+// - DO NOT use `.current` inside the render logic for anything that affects rendering — use `useState` for that.
+
+// STATE VS REF
+// ✅ Both State and Ref persist across renders
+
+// ✅ State triggers re-renders when updated
+// ❌ Ref does NOT trigger re-renders when updated (good for non-UI data)
+
+// ✅ State is immutable (you replace the value, not mutate it)
+// ❌ Ref is mutable (you can change .current directly)
+
+// ✅ State updates are asynchronous (batched and scheduled)
+// ❌ Ref updates are synchronous (immediate)
