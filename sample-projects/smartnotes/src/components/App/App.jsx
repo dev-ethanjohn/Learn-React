@@ -1,3 +1,5 @@
+import doubleQoute from "../../assets/double-quote.svg";
+
 import Accordion from "../Accordion/Accordion";
 import CTA from "../CTA/CTA";
 import FAQ from "../FAQ/FAQ";
@@ -20,7 +22,19 @@ function App() {
         <Hero />
       </Header>
       <Logos />
-      <Testimonial></Testimonial>
+      <Testimonial>
+        <h5 className="h5 testimonial__heading">
+          The real-time synchronization and AI-powered organization have made
+          our workflow more efficient than ever.
+        </h5>
+        <div className="testimonial__author-section">
+          <p className="testimonial__author text-reg">Sarah Johnson</p>
+          <p className="testimonial__organization text-reg">
+            Tech Savy Solutions
+          </p>
+          <img className="testimonial__quotes" src={doubleQoute} alt="quote" />
+        </div>
+      </Testimonial>
       <Features />
       <Testimonial></Testimonial>
       <Video />

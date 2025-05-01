@@ -129,3 +129,42 @@
     }
   }
 }
+
+.testimonial {
+  padding: 64px;
+
+  &__container {
+    margin: auto;
+    max-width: 484px;
+    padding-top: 24px;
+    position: relative;
+  }
+
+  &__heading {
+    margin: 0px;
+    text-align: center;
+    color: var(--accent);
+  }
+
+  &__author-section {
+    display: flex;
+    column-gap: 16px;
+    height: 43px;
+    justify-content: center;
+    align-items: end;
+    color: var(--primary-100);
+  }
+
+  &__organization {
+    color: var(--primary-100);
+    opacity: 0.7;
+  }
+
+  &__quotes {
+    position: absolute;
+    height: 24px;
+    width: 37px;
+    top: 0px;
+    left: 0px;
+  }
+}
