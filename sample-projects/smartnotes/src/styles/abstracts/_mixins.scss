@@ -1,0 +1,7 @@
+@mixin slide-left-animation(
+  $duration: 10s,
+  $timing: linear,
+  $iteration: infinite
+) {
+  animation: slide-left $duration $timing $iteration;
+}
