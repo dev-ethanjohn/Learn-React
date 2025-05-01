@@ -15,7 +15,6 @@ import Video from "../Video/Video";
 function App() {
   return (
     <Page>
-      <p>Hello</p>
       <Header>
         <Navigation />
         <Hero />

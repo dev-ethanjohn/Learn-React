@@ -1,8 +1,10 @@
 @use "abstracts/variables";
 
-@use "utilities/utilities";
+@use "base/base";
 
-.hello {
-  font-size: 3rem;
-  color: red;
-}
+@use "layouts/page";
+@use "layouts/navigation";
+
+@use "pages/home";
+
+@use "utilities/utilities";

@@ -1,5 +1,5 @@
-function Page() {
-  return <div></div>;
+function Page({ children }) {
+  return <div className="page">{children}</div>;
 }
 
 export default Page;
