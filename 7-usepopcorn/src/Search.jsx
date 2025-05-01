@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import { useKey } from "./useKey";
 
 function Search({ query, setQuery }) {
   // useEffect(() => {
@@ -9,18 +10,25 @@ function Search({ query, setQuery }) {
 
   const inputEl = useRef(null); //* null for DOM normally
 
-  useEffect(() => {
-    function handleFocus(e) {
-      if (e.code === "Enter") {
-        if (document.activeElement === inputEl.current) return; //* avoid input getting cleared
+  useKey("Enter", () => {
+    if (document.activeElement === inputEl.current) return; //* avoid input getting cleared
 
-        inputEl.current.focus();
-        setQuery("");
-      }
-    }
-    document.addEventListener("keydown", handleFocus);
-    return () => removeEventListener("keydown", handleFocus);
-  }, [setQuery]);
+    inputEl.current.focus();
+    setQuery("");
+  });
+
+  // useEffect(() => {
+  //   function handleFocus(e) {
+  //     if (e.code === "Enter") {
+  //       if (document.activeElement === inputEl.current) return; //* avoid input getting cleared
+
+  //       inputEl.current.focus();
+  //       setQuery("");
+  //     }
+  //   }
+  //   document.addEventListener("keydown", handleFocus);
+  //   return () => removeEventListener("keydown", handleFocus);
+  // }, [setQuery]);
 
   return (
     <>

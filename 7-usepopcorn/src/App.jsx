@@ -8,9 +8,11 @@ import NavBar from "./NavBar";
 import NumResults from "./NumResults";
 import Search from "./Search";
 import StarRating from "./StarRating";
-import tempMovieData from "./tempMovieData";
+import { useLocalStorageState } from "./useLocalStorageState";
+import { useMovies } from "./useMovies";
 import WatchedMoviesList from "./WatchedMoviesList";
 import WatchedSummary from "./WatchMov/WatchedSummary";
+import { useKey } from "./useKey";
 
 // const average = (arr) =>
 //   arr.length === 0 ? 0 : arr.reduce((acc, cur) => acc + cur, 0) / arr.length;
@@ -28,7 +30,6 @@ function MovieDetail({ selectedId, onCloseMovie, onAddWatched, watched }) {
   // check if you already rated this movie (added already to the watched list)
   const watchedIds = new Set(watched.map((movie) => movie.imdbID));
   const isWatched = watchedIds.has(selectedId);
-  // console.log(isWatched);
 
   const watchedUserRating = watched.find(
     (movie) => movie.imdbID === selectedId
@@ -144,22 +145,7 @@ function MovieDetail({ selectedId, onCloseMovie, onAddWatched, watched }) {
     };
   }, [title]);
 
-  // keypress
-  useEffect(() => {
-    function handleKeyDown(e) {
-      if (e.code === "Escape") {
-        onCloseMovie();
-      }
-    }
-
-    //* NO NEED OF useRef
-    // handling a global side effect (keyboard event), so there's no DOM node you need to reference.
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [onCloseMovie]);
+  useKey("Escape", onCloseMovie);
 
   return (
     <div className="details">
@@ -220,23 +206,16 @@ function MovieDetail({ selectedId, onCloseMovie, onAddWatched, watched }) {
 }
 
 function App() {
-  const [movies, setMovies] = useState(tempMovieData);
   // const [watched, setWatched] = useState([]);
-  const [watched, setWatched] = useState(() => {
-    //* must be pure func (no arg)
-    // *should not call a function inside useState
-    // Pass a lazy initializer to avoid re-reading localStorage on every render
-    // This runs only once on initial mount
-    const storedWatched = localStorage.getItem("watched");
-    return storedWatched ? JSON.parse(storedWatched) : [];
-  });
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [query, setQuery] = useState("");
 
   const [selectedId, setSelectedId] = useState(null);
   // const tempQuery = "interstellar";
+
+  //NOTE: CUSTOM HOOK
+  const { movies, isLoading, error } = useMovies(query);
+  const [watched, setWatched] = useLocalStorageState([], "watched");
 
   function handleSelectMovie(id) {
     setSelectedId((selectedID) => (id === selectedID ? null : id));
@@ -260,68 +239,6 @@ function App() {
     //returns all movies that do not match the current id, effectively removing the one you clicked on.
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
-
-  //* NOTE LOCAL STORAGE inside useEffect
-  useEffect(() => {
-    localStorage.setItem("watched", JSON.stringify(watched));
-  }, [watched]); //* The watched dependency already contains the updated array from
-
-  //! Fetching data  in the render logic is a side effect (because it affects things outside the component, e.g., making a network request). React render phase must be pure: no fetch, no timers, no DOM mutations, no direct state changes!
-  //? Only event handlers and useEffect (or other effect hooks) are allowed to cause side effects!
-  //? "Rendering should just compute JSX based on the current state/props. Effects happen after the render.";
-  useEffect(() => {
-    const controller = new AbortController();
-
-    const fetchMovies = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
-        const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
-          { signal: controller.signal }
-        );
-        if (!res.ok)
-          throw new Error("Something went wrong with fetching movies");
-        const data = await res.json();
-        if (data.Response === "False") throw new Error("Movie not found"); //*if query is invalid
-
-        setMovies(data.Search);
-        setError("");
-      } catch (error) {
-        // console.error(error);
-
-        //* custom message if (offline)
-        if (error.message === "Failed to fetch") {
-          setError(
-            "Network error: Could not connect to the server. Please check your connection."
-          );
-        } else {
-          setError(error.message);
-        }
-
-        if (error.name !== "AbortError") {
-          setError(error.message);
-        }
-      } finally {
-        // *this always run
-        setIsLoading(false);
-      }
-    };
-
-    if (query.length < 3) {
-      setMovies([]);
-      setError("");
-      return;
-    }
-
-    handleCloseMovie();
-    fetchMovies();
-
-    // cleanup
-    return function () {
-      controller.abort();
-    };
-  }, [query]); //* ✅ Empty dependency array = run once on mount
 
   return (
     <>
@@ -577,7 +494,7 @@ setItems((prevItems) => [...prevItems, newItem]);
 setItems((prevItems) => prevItems.filter(item => item.id !== idToRemove));
 */
 
-// * IMPORTANT: useRef Introduction (React Hook #164)
+//*  IMPORTANT: useRef Introduction (React Hook #164)
 
 // useRef creates a "box" (object) with a `.current` property.
 // - This property is mutable (can be changed without re-rendering).
@@ -606,3 +523,12 @@ setItems((prevItems) => prevItems.filter(item => item.id !== idToRemove));
 
 // ✅ State updates are asynchronous (batched and scheduled)
 // ❌ Ref updates are synchronous (immediate)
+
+//*  IMPORTANT: 169 custom Hooks
+// - Allow us to reuse [non-visual] logic in multiple components
+// - One custom hook have [1 purpose], to make it [reusable], and [portable] (even across multiple projects)
+//  [Rules of hooks apply to custom hooks too!]
+
+// Function name needs to start with "use"
+// Needs to use [1 or more hooks]
+// unlike component, can receive and return [ANY RELEVANT DATA] (usuall [] or {})
