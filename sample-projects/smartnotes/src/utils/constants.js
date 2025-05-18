@@ -63,4 +63,50 @@ const features = [
   },
 ];
 
-export { features, logos };
+const pricingData = [
+  {
+    darkMode: false,
+    plan: "Individual Plan",
+    planIcon: new URL("../assets/pricing/individual-plan.svg", import.meta.url)
+      .href,
+    planPrice: 9.99,
+    bullets: [
+      "Real-time collaboration",
+      "AI-powered organization",
+      "Customizable templates",
+      "5GB cloud storage",
+      "Basic integrations",
+    ],
+    CallToAction: "Start Free Trial",
+  },
+  {
+    darkMode: true,
+    plan: "Team Plan",
+    planIcon: new URL("../assets/pricing/team-plan.svg", import.meta.url).href,
+    planPrice: 19.99,
+    bullets: [
+      "Everything in the Individual Plan",
+      "Unlimited cloud storage",
+      "Advanced integrations",
+      "Team management and permissions",
+      "Shared templates and note libraries",
+    ],
+    CallToAction: "Start Free Trial",
+  },
+  {
+    darkMode: false,
+    plan: "Enterprise Plan",
+    planIcon: new URL("../assets/pricing/enterprise-plan.svg", import.meta.url)
+      .href,
+    bullets: [
+      "Everything in the Team Plan",
+      "Dedicated account manager",
+      "Enterprise-grade security",
+      "Customized onboarding",
+      "Advanced analytics",
+    ],
+    CallToAction: "Contact support",
+  },
+];
+
+export { features, logos, pricingData };

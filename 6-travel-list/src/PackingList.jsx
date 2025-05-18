@@ -14,6 +14,7 @@ function PackingList({ items, onDeleteItem, onToggleItem, onClearList }) {
   };
 
   const sortedItems = [...items].sort(sortingFunctions[sortBy]);
+
   return (
     <div className="list">
       <ul>
