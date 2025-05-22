@@ -1,4 +1,4 @@
-function IngredientsList({ toggleRecipe, ingredients }) {
+function IngredientsList({ fetchRecipe, ingredients, isLoading }) {
   const ingredientsListItems = ingredients.map((ingredient) => (
     <li key={ingredient}>{ingredient}</li>
   ));
@@ -15,7 +15,9 @@ function IngredientsList({ toggleRecipe, ingredients }) {
               <h3>Ready for a recipe?</h3>
               <p>Generate a recipe from your list of ingredients.</p>
             </div>
-            <button onClick={toggleRecipe}>Get a recipe</button>
+            <button onClick={fetchRecipe} disabled={isLoading}>
+              {isLoading ? "Loading..." : "Get a recipe"}
+            </button>
           </div>
         ) : null}
       </section>
